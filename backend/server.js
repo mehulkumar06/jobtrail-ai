@@ -25,6 +25,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 
+app.set('trust proxy', 1);
+
 app.use(express.json());
 
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGODB_URI });
@@ -33,13 +35,13 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: sessionStore,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
   cookie: {
-  maxAge: 1000 * 60 * 60 * 24 * 7,
-  httpOnly: true,
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  secure: process.env.NODE_ENV === 'production' ? true : false
-}
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production' ? true : false
+  }
 }));
 
 app.use(passport.initialize());
